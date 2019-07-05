@@ -1,0 +1,18 @@
+#*****************Commands that can be used for autoscaling during the release pipeline once the WebApp is deployed ******************
+
+
+1. Create a Rulefirest
+
+ $AutoScaleRule = New-AzureRmAutoscaleRule -MetricName "CpuTime" -MetricResourceId "/subscriptions/a8a712e9-37e2-483f-ab3e-10bea4d3bf31/resourceGroups/dev-bcs-qmotion-shades-cloud/providers/Mi
+crosoft.Web/sites/uat-bcs-qm-companyapp-app" -MetricStatistic Average -Operator GreaterThan -Threshold 70 -TimeGrain 00:05:00 -ScaleActionDirection Increase -ScaleActionValue "1" -ScaleActionCooldown 00:10:00
+
+
+2. Create a Profile
+
+ $AutoScaleProfile = New-AzureRmAutoscaleProfile -DefaultCapacity "1" -MaximumCapacity "10" -MinimumCapacity "1" -StartTimeWindow 2019-07-05T00:00:00 -EndTimeWindow 2019-07-06T23:59:00 -TimeWi
+ndowTimeZone UTC -Rule $AutoScaleRule -Name "Scale when CPU is HIGH"
+
+3. Add the profile to the App service plan of the app
+
+Add-AzureRmAutoscaleSetting -Location "Central US" -Name "Auto Scale Setting1" -ResourceGroup "dev-bcs-qmotion-shades-cloud" -TargetResourceId "/subscriptions/a8a712e9-37e2-483f-ab3e-10bea4d3
+bf31/resourceGroups/dev-bcs-qmotion-shades-cloud/providers/microsoft.web/serverFarms/uat-bcs-qm-companyapp-asp" -AutoscaleProfile $AutoScaleProfile

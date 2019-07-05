@@ -1,0 +1,50 @@
+#***************Create a self signed certficate
+
+
+Command - New-SelfSignedCertificate -DnsName uat-bcs-qm-companyapp-app.azurewebsites.net -CertStoreLocation cert:\LocalMachine\My 
+Result - 
+
+
+   PSParentPath: Microsoft.PowerShell.Security\Certificate::LocalMachine\My
+
+Thumbprint                                Subject
+----------                                -------
+B37F5AEA913D706D85E3D84410482F89741EE5E3  CN=uat-bcs-qm-companyapp-app.azurewebsites.net
+
+
+#*********************To create PFX file and Private Key 
+
+Command -
+$CertPassword = ConvertTo-SecureString -String "uat" -Force –AsPlainText
+Export-PfxCertificate -Cert cert:\LocalMachine\My\B37F5AEA913D706D85E3D84410482F89741EE5E3 -FilePath C:\uatapp.pfx -Password $CertPassword
+
+Result - 
+    Directory: C:\
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----         7/4/2019   3:28 PM           2773 uatapp.pfx
+
+
+PS D:\MyWork\ThoughtWorks\PracticeAssignment>
+
+
+#***************************The certificate public key can be exported as follows:
+
+Command -
+Export-Certificate -Cert Cert:\LocalMachine\My\B37F5AEA913D706D85E3D84410482F89741EE5E3 -FilePath C:\uatappkey.pfx
+
+Result -
+
+    Directory: C:\
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----         7/4/2019   3:30 PM            900 uatappkey.pfx
+
+#*************************** Powershell Command to bind the certificate to App
+Command -
+
+New-AzureRmWebAppSSLBinding -ResourceGroupName $rg_name -WebAppName $java_app_service_name -Name $fqdn -SslState SniEnabled -CertificateFilePath $pfxPath -CertificatePassword $pfxPassword
